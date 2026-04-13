@@ -5,14 +5,14 @@ using VideoGameCharacterApi.Services;
 
 namespace VideoGameCharacterApi.Controllers;
 
-        [Route("api/[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class GameCharacterController(IVideoGameCharacterService service) : ControllerBase
 {
 
     [HttpGet]
     public async Task<ActionResult<List<Character>>> GetCharacters()
-            => Ok(await service.GetAllCharctersAsync());
+            => Ok(await service.GetAllCharactersAsync());
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Character>> GetCharacter(int id)
