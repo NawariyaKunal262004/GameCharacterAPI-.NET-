@@ -44,3 +44,6 @@ app.MapControllers();
 
 // Start the web application and begin listening for HTTP requests.
 app.Run();
+
+// Expose Program class for integration tests (WebApplicationFactory requires a type).
+public partial class Program { }
