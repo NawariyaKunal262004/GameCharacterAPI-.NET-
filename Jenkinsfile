@@ -16,7 +16,7 @@ pipeline {
 
     stage('Restore') {
       steps {
-        sh 'dotnet restore VideoGameCharacterApi/VideoGameCharacterApi.csproj'
+        sh "dotnet build VideoGameCharacterApi/VideoGameCharacterApi.csproj --configuration Release"
       }
     }
 
