@@ -22,7 +22,9 @@ pipeline {
 
     stage('Build') {
       steps {
-        sh 'dotnet build --configuration Release'
+        dir('VideoGameCharacterApi') {
+            sh "dotnet build --configuration Release"
+        }
       }
     }
 
