@@ -1,53 +1,140 @@
 # Video Game Character API
 
-This is a simple ASP.NET Core Web API that manages video game characters. It demonstrates basic CRUD (Create, Read, Update, Delete) operations using Entity Framework Core and follows a layered structure (Controllers, Services, Data, Models, DTOs).
+Project
+- Video Game Character API — a backend Web API to manage video game characters. Tech: .NET 8, ASP.NET Core, EF Core, Docker, Jenkins CI/CD.
 
-## Project structure (simple explanation)
+Overview
+- Small REST API that provides CRUD operations for video game characters. Demonstrates layered design (Controllers ? Services ? Data), automated tests, Docker containerization, and a Jenkins CI/CD pipeline.
 
-- `Controllers/` - Receives HTTP requests and returns responses. It calls service methods to perform work.
-- `Services/` - Contains business logic. Talks to the database via `AppDbContext` and translates between domain models and DTOs.
-- `Data/` - Contains `AppDbContext` which is the EF Core database context. It defines which entities are stored in the database.
-- `Models/` - Domain models that represent database tables (e.g., `Character`).
-- `Dtos/` - Simple objects used to transfer data in/out of the API. Keeps domain models separate from API shape.
-- `Program.cs` - App startup. Registers services and configures middleware.
+## Quick Start (Recommended)
 
-## How the API works (beginner-friendly)
+Run the application stack with Docker Compose (from repository root):
 
-1. The controller defines endpoints like `GET /api/GameCharacter` or `POST /api/GameCharacter`.
-2. When a request arrives, the controller calls the service (for example `IVideoGameCharacterService`).
-3. The service uses `AppDbContext` to talk to the database (for example to add or read `Character` rows).
-4. DTOs (`CreateCharacterRequest`, `UpdateCharacterRequest`, `CharacterResponse`) are used so the API doesn't expose internal database entities directly.
+```bash
+docker-compose up --build
+```
 
-## Key files and why they exist (short notes)
+When services are running, open the API documentation:
 
-- `Program.cs` - Registers services (controllers, DbContext, and the character service) and configures middleware. It's the app entry point.
-- `AppDbContext.cs` - Inherits `DbContext`. Provides `DbSet<Character>` to query and save `Character` entities.
-- `Character.cs` - Defines properties stored in the database for each character.
-- `DTOs` -
-  - `CreateCharacterRequest` - Payload for creating a character. Contains `Name`, `Game`, `Role`.
-  - `UpdateCharacterRequest` - Payload for updating a character. Contains same fields plus `Id`.
-  - `CharacterResponse` - Data returned to API clients, includes `Id`.
-- `IVideoGameCharacterService.cs` - Interface describing what operations the service provides (GetAll, GetById, Add, Update, Delete).
-- `VideoGameCharacterService.cs` - Implementation of the interface. Contains the actual database operations and maps DTOs to domain models.
-- `GameCharacterController.cs` - Routes HTTP requests to the service and returns appropriate HTTP responses (200, 201, 204, 404).
+```
+http://localhost:8080/swagger/index.html
+```
 
-## Running the project
+This runs the API in a containerized environment.
 
-- Ensure you have a SQL Server instance and update `appsettings.json` connection string `DefaultConnection`.
-- Run `dotnet ef database update` to apply migrations.
-- Start the app (F5 in Visual Studio). Use the Swagger/OpenAPI UI in development to test endpoints.
+## Run with Docker
 
-## Example HTTP requests
+Build the Docker image:
 
-- GET /api/GameCharacter - list all characters
-- GET /api/GameCharacter/1 - get character with id 1
-- POST /api/GameCharacter - create new character (send JSON with `Name`, `Game`, `Role`)
-- PUT /api/GameCharacter/1 - update character with id 1 (send JSON with `Id`, `Name`, `Game`, `Role`)
-- DELETE /api/GameCharacter/1 - delete character with id 1
+```bash
+docker build -t gamecharacterapi .
+```
 
-## Notes for beginners
+Run the container:
 
-- DTO: Data Transfer Object. Used to separate API shape from database entities.
-- DbContext: Represents the database session, and `DbSet<T>` are collections representing tables.
-- Migrations: EF Core feature to create/update database schema from code.
+```bash
+docker run -p 8080:8080 gamecharacterapi
+```
 
+Access:
+
+```
+http://localhost:8080/swagger/index.html
+```
+
+## Run Locally (.NET)
+
+Restore dependencies, build, and run the API locally:
+
+```bash
+dotnet restore
+dotnet build
+dotnet run --project VideoGameCharacterApi
+```
+
+Expected output: the console shows that the application started and the URL where it is listening. Open:
+
+```
+http://localhost:8080/swagger/index.html
+```
+
+## Running Tests
+
+Run unit and integration tests:
+
+```bash
+dotnet test
+```
+
+This executes the test project and reports results for unit and integration tests.
+
+## CI/CD Pipeline (Jenkins)
+
+Pipeline overview:
+
+1. Code pushed to GitHub
+2. Jenkins pulls the repository
+3. Pipeline stages:
+   - Restore
+   - Build
+   - Test
+   - Publish
+   - Docker Build
+   - Push (optional)
+
+Triggering a build:
+
+- Manual: Start a job from the Jenkins UI and select your branch.
+- Automatic: Configure a GitHub webhook to notify Jenkins on push events.
+
+The provided `Jenkinsfile` implements the declarative pipeline with the stages above.
+
+## How to Verify CI/CD
+
+Success criteria:
+
+- Jenkins pipeline completes all stages without errors
+- No build or test failures reported in pipeline logs
+- Docker image is built (check Docker registry or local image list)
+
+To verify manually:
+
+1. Open Jenkins job and run the pipeline.
+2. Observe each stage (Restore, Build, Test, Docker Build) completes successfully.
+3. Confirm the Docker image appears in local images (`docker images`) or in the configured registry.
+
+## Execution Flow
+
+```mermaid
+flowchart TB
+  GitHub --> Jenkins
+  Jenkins --> Build
+  Build --> Test
+  Test --> DockerImage[Docker Image]
+  DockerImage --> Run[Running API]
+```
+
+## For Non-Technical Users
+
+- The project exposes an API documented via Swagger.
+- Open the Swagger URL in a browser and use the "Try it out" button to call endpoints.
+- The API supports listing, creating, updating and deleting characters.
+
+## Project structure (summary)
+
+- `VideoGameCharacterApi/` - Main API project
+  - `Controllers/` - HTTP controllers
+  - `Services/` - Business logic
+  - `Data/` - EF Core DbContext
+  - `Dtos/` - Request/response DTOs
+  - `Models/` - Domain entities
+- `VideoGameCharacterApi.Tests/` - Test project (unit and integration tests)
+- `Dockerfile`, `docker-compose.yml`, `Jenkinsfile` - DevOps artifacts
+- `docs/` - Additional documentation and diagrams
+
+## Notes
+
+- Ensure Docker daemon is running before using Docker or docker-compose commands.
+- For local runs the application listens on the configured port; if 8080 is used by other services, adjust port mappings accordingly.
+
+If you need a docker-compose variant that includes a SQL Server instance for local development, I can add it.
